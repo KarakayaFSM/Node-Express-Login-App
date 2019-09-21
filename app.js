@@ -1,7 +1,7 @@
 const express = require('express')
-const expressLayouts = require('express-ejs-layouts');
-
-const mongoose = require('mongoose');
+const expressLayouts = require('express-ejs-layouts')
+const path = require('path')
+const mongoose = require('mongoose')
 
 const app = express();
 
@@ -16,7 +16,7 @@ mongoose.connect(db,{useNewUrlParser:true,useUnifiedTopology:true})
 //EJS
 app.use(expressLayouts)
 app.set('view engine','ejs')
-
+app.set('views', path.join(__dirname, '/views'));
 //BodyParser
 app.use(express.urlencoded({extended:false}));
 
