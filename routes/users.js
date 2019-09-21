@@ -14,10 +14,17 @@ router.get('/login', (req, res) => {
 
 router.post('/login', (req, res, next) => {
     passport.authenticate('local',{
-        successRedirect: 'dashboard',
+        successRedirect: '/dashboard',
         failureRedirect: '/users/login',
         failureFlash:true
     })(req,res,next);
+});
+
+//Logout Handle
+router.get('/logout',(req,res) => {
+    req.logOut();
+    req.flash('success_msg',"You're successfully logged out");
+    res.redirect('/users/login');
 });
 
 //Register Page
