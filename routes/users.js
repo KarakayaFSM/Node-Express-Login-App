@@ -1,5 +1,6 @@
 const express = require('express')
 const bcrypt = require('bcryptjs')
+const passport = require('passport')
 
 const router = express.Router();
 
@@ -11,8 +12,12 @@ router.get('/login', (req, res) => {
     res.render('login');
 });
 
-router.post('/login', (req, res) => {
-    res.render('dashboard',{user:req.body});
+router.post('/login', (req, res, next) => {
+    passport.authenticate('local',{
+        successRedirect: 'dashboard',
+        failureRedirect: '/users/login',
+        failureFlash:true
+    })(req,res,next);
 });
 
 //Register Page
@@ -22,7 +27,12 @@ router.get('/register', (req, res) => {
 
 router.post('/register', (req, res) => {
     //getting required fields out of req.body by destructuring
-    const {name,email,password,password2} = req.body;
+    const {
+        name,
+        email,
+        password,
+        password2
+    } = req.body;
     let errors = [];
 
     //Check required fields
@@ -53,7 +63,7 @@ router.post('/register', (req, res) => {
         });
         return;
     }
-        User.findOne({
+    User.findOne({
             email: email
         })
         .then((user) => {
@@ -68,30 +78,28 @@ router.post('/register', (req, res) => {
                     email
                 });
                 return;
-            } 
-                const newUser = new User({
-                    name,
-                    email,
-                    password
-                });
-                //Encrypt Password With Bcrypt
-                bcrypt.genSalt(10,(err,salt) =>
-                    bcrypt.hash(newUser.password,salt, (err,hash) =>{
-                        if(err) throw err;
-                        //Set password to hash
-                        newUser.password = hash;
-                        //Save User
-                        newUser.save()
+            }
+            const newUser = new User({
+                name,
+                email,
+                password
+            });
+            //Encrypt Password With Bcrypt
+            bcrypt.genSalt(10, (err, salt) =>
+                bcrypt.hash(newUser.password, salt, (err, hash) => {
+                    if (err) throw err;
+                    //Set password to hash
+                    newUser.password = hash;
+                    //Save User
+                    newUser.save()
                         .then((user) => {
-                            req.flash('success_msg',"You're now registered. Use your credentials to login");
+                            req.flash('success_msg', "You're now registered. Use your credentials to login");
                             res.redirect('/users/login')
                         })
-                            .catch((err) => console.log(err))
+                        .catch((err) => console.log(err))
                 }));
-        })
+        });
 });
-
-
 
 
 module.exports = router
