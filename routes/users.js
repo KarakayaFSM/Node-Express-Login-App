@@ -80,15 +80,16 @@ router.post('/register', (req, res) => {
                         if(err) throw err;
                         //Set password to hash
                         newUser.password = hash;
-
+                        //Save User
                         newUser.save()
-                        .then((user) => res.redirect('/users/login'))
+                        .then((user) => {
+                            req.flash('success_msg',"You're now registered. Use your credentials to login");
+                            res.redirect('/users/login')
+                        })
                             .catch((err) => console.log(err))
                 }));
         })
 });
-
-
 
 
 
